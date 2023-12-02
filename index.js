@@ -1,5 +1,8 @@
 const puppeteer = require("puppeteer");
 const { takeScreenshot, isElementClickable } = require("./lib.js");
+const { setLocation } = require("./subtasks.js");
+
+const saveNatworkData = false;
 
 const url = "https://filiale.kaufland.de/angebote/aktuelle-woche/uebersicht.category=01_Fleisch__Gefl%C3%BCgel__Wurst.html";
 
@@ -8,161 +11,101 @@ const main = async () => {
     const page = await browser.newPage();
     await page.goto(url);
 
-    // const [el] = await page.$x('/html/body/div[3]/header/div/div[1]/div[2]/div/div/div[3]/div/div[2]/div[2]/div/div/div[2]/div[1]/span[1]/span[2]');
-    // const txt = await el.getProperty('textContent');
-    // const rawTxt = await txt.jsonValue();
-    // console.log({rawTxt});
+    await setLocation(page);
 
-    // take screenshot
-    // await page.click('.a-flyout-link__anchor');
-    
-    await takeScreenshot(page, 1);
-    await page.waitForXPath('//*[@id="onetrust-reject-all-handler"]');
-    await takeScreenshot(page, 2);
+    // get all categories
+    let categories = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[1]/div/ul/li/a');
+    categories = Array.from(categories);
+    const categoriesLength = categories.length;
+    let specialCategories = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[2]/div/ul/li/a');
+    specialCategories = Array.from(specialCategories);
+    const specialCategoriesLength = specialCategories.length;
+    // concatenate those two arrays
+    // categories = categories.concat(specialCategories);
+    // console.log(categories.length);
 
-    // click on xpath
-    const [button] = await page.$x('//*[@id="onetrust-reject-all-handler"]');
-    if (button && await isElementClickable(page, button)) {
-        await button.click()
-    }
-
-    await page.waitForNavigation({ waitUntil: 'networkidle0' });
-    await takeScreenshot(page, 3);
-
-    // reload page
-    await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
-
-    const [buttonLocationMenu] = await page.$x('/html/body/div[3]/header/div/div[1]/div[2]/div/div/div[3]/div/div[1]/div[1]/a');
-    if (buttonLocationMenu && await isElementClickable(page, buttonLocationMenu)) {
-        await buttonLocationMenu.click();
-        // await page.waitForNavigation({ waitUntil: 'networkidle0' });
-        await takeScreenshot(page, 4);
-    }
-
-    const [locationName] = await page.$x('/html/body/div[3]/header/div/div[1]/div[2]/div/div/div[3]/div/div[2]/div[2]/div/div/div[2]/div[1]/span[1]/span[2]')
-    if (locationName) {
-        const txt = await locationName.getProperty('textContent');
+    // loop over the categories and click on them
+    for(let i = 0; i < categoriesLength; i++) {
+        let [currCategory] = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[1]/div/ul/li[' + (i+1) + ']/a');
+        const txt = await currCategory.getProperty('textContent');
         const rawTxt = await txt.jsonValue();
         console.log({rawTxt});
-    }
-
-    await takeScreenshot(page, 5);
-
-    const [buttonToChangeLoacation] = await page.$x('/html/body/div[3]/header/div/div[1]/div[2]/div/div/div[3]/div/div[2]/div[2]/div/div/div[2]/div[2]/ul/li[3]/a');
-    console.log(await isElementClickable(page, buttonToChangeLoacation))
-    if(buttonToChangeLoacation && await isElementClickable(page, buttonToChangeLoacation)) {
-        await buttonToChangeLoacation.click();
-        await new Promise(r => setTimeout(r, 1000));
-        await takeScreenshot(page, 6);
-    }
-
-    // wait for no network connections
-    await new Promise(r => setTimeout(r, 1000));
-    await takeScreenshot(page, 7);
-
-    // get field for city and type Kirchentellinsfurt
-    const [fieldCity] = await page.$x('//*[@id="store-search"]');
-    if(fieldCity) {
-        await fieldCity.type('Kirchentellinsfurt');
-        await page.keyboard.press('Enter');
-        await new Promise(r => setTimeout(r, 1000));
-        await takeScreenshot(page, 8);
-    }
-
-    // get first store and click on it
-    const [firstStore] = await page.$x('/html/body/div[1]/div[2]/div/div/div/div/div/div[1]/div[2]/div[2]/div[2]/div/ul/li[1]/div[3]/div[1]/div/a');
-    if(firstStore) {
-        await firstStore.click();
+        await currCategory.click();
+        // await redirect
+        await page.waitForNavigation({ waitUntil: 'networkidle0' });
         await new Promise(r => setTimeout(r, 2000));
-        await takeScreenshot(page, 9);
+        await takeScreenshot(page, i);
+
+        let foodItems = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[2]/div/div/div/div');
+        // make foodItems to array
+        foodItems = Array.from(foodItems);
+        console.log(foodItems.length);
+    
+        // from foodItems get h4, h5 and price
+        const food = await Promise.all(foodItems.map(async (foodItem) => {
+            const itemH5 = await foodItem.$('h5');
+            let txtItemH5;
+            if(!itemH5){
+                txtItemH5 = null;
+            } else {
+                txtItemH5 = await itemH5.getProperty('textContent');
+                txtItemH5 = await txtItemH5.jsonValue();
+                txtItemH5 = txtItemH5.trim();
+            }
+    
+            const itemH4 = await foodItem.$('h4');
+            let txtItemH4;
+            if(!itemH4){
+                txtItemH4 = null;
+            } else {
+                txtItemH4 = await itemH4.getProperty('textContent');
+                txtItemH4 = await txtItemH4.jsonValue();
+                txtItemH4 = txtItemH4.trim();
+            }
+    
+            const itemPrice = await foodItem.$('.a-pricetag__price');
+            let txtItemPrice;
+            if(!itemPrice){
+                txtItemPrice = null;
+            } else {
+                txtItemPrice = await itemPrice.getProperty('textContent');
+                txtItemPrice = await txtItemPrice.jsonValue();
+                txtItemPrice = txtItemPrice.trim();
+            }
+
+            const itemPricePerUnit = await foodItem.$('.m-offer-tile__quantity');
+            let txtItemPricePerUnit;
+            if(!itemPricePerUnit){
+                txtItemPricePerUnit = null;
+            } else {
+                txtItemPricePerUnit = await itemPricePerUnit.getProperty('textContent');
+                txtItemPricePerUnit = await txtItemPricePerUnit.jsonValue();
+                txtItemPricePerUnit = txtItemPricePerUnit.trim();
+            }
+
+            const itemImage = await foodItem.$('img');
+            let txtItemImage;
+            if(!itemImage || saveNatworkData){
+                txtItemImage = null;
+            } else {
+                const outerHTML = await page.evaluate(el => el.outerHTML, itemImage);
+                txtItemImage = outerHTML.match(/src="([^"]*)/)[1];
+            }
+
+            // TODO add days valid as array
+            // TODO add discount factor
+            // TODO add normal price
+    
+            if((!txtItemH5 && !txtItemH4) || !txtItemPrice) return null;
+
+            return {txtItemH5, txtItemH4, txtItemPrice, txtItemPricePerUnit, txtItemImage};
+    
+        }));
+    
+        console.log(food);
+
     }
 
-    // get all food
-    // const allFood = await page.evaluate(() => {
-    //     const foods = Array.from(document.getElementsByClassName("o-overview-list__list-item"));
-
-    //     return Array.from(foods).slice(0,3).map(async food => {
-    //         const nameSub = food.querySelector("h5")?.innerText;
-    //         const nameMain = food.querySelector("h4")?.innerText;
-            
-    //         // let spanPrice = await food.$$('.a-pricetag__price');
-    //         // spanPrice = spanElement.pop();
-    //         // spanPrice = await spanElement.getProperty('innerText');
-    //         // spanPrice = await spanElement.jsonValue();
-    //         // const price = food.querySelector(".a-pricetag__price").innerText;//[0]?.innerText;
-
-    //         return {nameSub, nameMain};
-
-    //     });
-    // }
-    // );
-
-    // const h4Elements = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[2]/div/div/div//h4');
-    let foodItems = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[2]/div/div/div/div');
-    // make foodItems to array
-    foodItems = Array.from(foodItems);
-    console.log(foodItems.length);
-    // make foodItems readable and log t
-    // foodItems = await Promise.all(foodItems.map(async foodItem => {
-    //     let txt = await foodItem.getProperty('textContent');
-    //     txt = await txt.jsonValue();
-    //     return txt;
-    // }));
-    // console.log(foodItems);
-
-    // from foodItems get h4, h5 and price
-    // const food = await Promise.all(foodItems.map(async foodItem => {
-    const food = await Promise.all(foodItems.map(async (foodItem) => {
-        const itemH5 = await foodItem.$('h5');
-        if(!itemH5) return null;
-        let txtItemH5 = await itemH5.getProperty('textContent');
-        txtItemH5 = await txtItemH5.jsonValue();
-        txtItemH5 = txtItemH5.trim();
-
-        const itemH4 = await foodItem.$('h4');
-        if(!itemH4) return null;
-        let txtItemH4 = await itemH4.getProperty('textContent');
-        txtItemH4 = await txtItemH4.jsonValue();
-        txtItemH4 = txtItemH4.trim();
-
-        const itemPrice = await foodItem.$('.a-pricetag__price');
-        if(!itemPrice) return null;
-        let txtItemPrice = await itemPrice.getProperty('textContent');
-        txtItemPrice = await txtItemPrice.jsonValue();
-        txtItemPrice = txtItemPrice.trim();
-
-        // const itemImage = await foodItem.$('img');
-        // if(!itemImage) return null;
-        // let txtItemImage = await itemImage.getProperty('src');
-        // txtItemImage = await txtItemImage.jsonValue();
-        // txtItemImage = txtItemImage.trim();
-
-        return {txtItemH5, txtItemH4, txtItemPrice};
-
-
-
-        // let [nameSub] = await foodItem.$$('xpath/' + './/h5');
-        // const nameSubTxt = await nameSub.getProperty('textContent');
-        // const nameSubRawTxt = await nameSubTxt.jsonValue();
-        // // console.log({nameSubRawTxt});
-
-        // let [nameMain] = await foodItem.$$('xpath/' + './/h4');
-        // // nameMain = nameMain.pop();
-        // // nameMain = await nameMain.getProperty('innerText');
-        // // nameMain = await nameMain.jsonValue();
-        // const nameMainTxt = await nameMain.getProperty('textContent');
-        // const nameMainRawTxt = await nameMainTxt.jsonValue();
-
-        // return {nameSubRawTxt, nameMainRawTxt};
-
-        // const nameSub = await foodItem.$eval('h5', element => element.innerText);
-        // const nameMain = await foodItem.$eval('h4', element => element.innerText);
-        // const price = await foodItem.$eval('.a-pricetag__price', element => element.innerText);
-        // return {nameSub, nameMain, price};
-        // return(await foodItem.jsonValue())
-    }));
-
-    console.log(food);
 
     // await Promise.all(h4Elements.map(async element => {
     //     const txt = await element.getProperty('textContent');
