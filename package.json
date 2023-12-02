@@ -1,0 +1,12 @@
+{
+  "name": "grocerystore-scraping",
+  "version": "1.0.0",
+  "description": "scraping grocery store websites to compare prices",
+  "main": "index.js",
+  "repository": "https://github.com/Timo1024/grocerystore-scraping.git",
+  "author": "Robin Bonkaß <klapperschlange2820@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.5.2"
+  }
+}
