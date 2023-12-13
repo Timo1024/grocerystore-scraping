@@ -1,6 +1,7 @@
 const { takeScreenshot, isElementClickable } = require("./lib.js");
 
-const setLocation = async (page) => {
+const acceptCookies = async (page) => {
+
     await takeScreenshot(page, 1);
     await page.waitForXPath('//*[@id="onetrust-reject-all-handler"]');
     await takeScreenshot(page, 2);
@@ -11,11 +12,15 @@ const setLocation = async (page) => {
         await button.click()
     }
 
-    await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    // await page.waitForNavigation({ waitUntil: 'networkidle0' });
     await takeScreenshot(page, 3);
 
     // reload page
     await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+
+}
+
+const setLocation = async (page) => {
 
     const [buttonLocationMenu] = await page.$x('/html/body/div[3]/header/div/div[1]/div[2]/div/div/div[3]/div/div[1]/div[1]/a');
     if (buttonLocationMenu && await isElementClickable(page, buttonLocationMenu)) {
@@ -60,6 +65,7 @@ const setLocation = async (page) => {
         await new Promise(r => setTimeout(r, 2000));
         await takeScreenshot(page, 9);
     }
+
 }
 
-module.exports = { setLocation };
+module.exports = { setLocation, acceptCookies };
