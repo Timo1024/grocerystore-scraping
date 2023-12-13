@@ -1,17 +1,21 @@
 const puppeteer = require("puppeteer");
-const { takeScreenshot, isElementClickable } = require("./lib.js");
-const { setLocation } = require("./subtasks.js");
+const fs = require('fs');
+const { takeScreenshot, isElementClickable, extractDates, addFoodToDatabase, clearDatabaseByStore } = require("./lib.js");
+const { setLocation, acceptCookies } = require("./subtasks.js");
+const sqlite3 = require('sqlite3').verbose();
 
 const saveNatworkData = false;
 
 const url = "https://filiale.kaufland.de/angebote/aktuelle-woche/uebersicht.category=01_Fleisch__Gefl%C3%BCgel__Wurst.html";
 
 const main = async () => {
+
     const browser = await puppeteer.launch({headless: "new"});
     const page = await browser.newPage();
     await page.goto(url);
 
-    await setLocation(page);
+    await acceptCookies(page);
+    // await setLocation(page);
 
     // get all categories
     let categories = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[1]/div/ul/li/a');
@@ -20,17 +24,29 @@ const main = async () => {
     let specialCategories = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[2]/div/ul/li/a');
     specialCategories = Array.from(specialCategories);
     const specialCategoriesLength = specialCategories.length;
-    // concatenate those two arrays
-    // categories = categories.concat(specialCategories);
-    // console.log(categories.length);
+
+    // get dates when the prices are valid
+    const dateRange = await page.$('.o-richtext--subheadline');
+    let txtDateRange = await dateRange.getProperty('textContent');
+    txtDateRange = await txtDateRange.jsonValue();
+    txtDateRange = txtDateRange.trim();
+    console.log({txtDateRange});
+
+    const dates = await extractDates(txtDateRange);
+
+    // const txtDates = dates.map((date) => {
+    //     return date.toString();
+    // });
+    // console.log({txtDates});
 
     // loop over the categories and click on them
     for(let i = 0; i < categoriesLength; i++) {
         let [currCategory] = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[1]/div/ul/li[' + (i+1) + ']/a');
         const txt = await currCategory.getProperty('textContent');
-        const rawTxt = await txt.jsonValue();
-        console.log({rawTxt});
+        const txtCategory = (await txt.jsonValue()).trim();
+        console.log({rawTxt: txtCategory});
         await currCategory.click();
+
         // await redirect
         await page.waitForNavigation({ waitUntil: 'networkidle0' });
         await new Promise(r => setTimeout(r, 2000));
@@ -43,6 +59,8 @@ const main = async () => {
     
         // from foodItems get h4, h5 and price
         const food = await Promise.all(foodItems.map(async (foodItem) => {
+
+            // h5 contains the name of the food
             const itemH5 = await foodItem.$('h5');
             let txtItemH5;
             if(!itemH5){
@@ -53,6 +71,7 @@ const main = async () => {
                 txtItemH5 = txtItemH5.trim();
             }
     
+            // h4 contains the brand, info, etc. of the food
             const itemH4 = await foodItem.$('h4');
             let txtItemH4;
             if(!itemH4){
@@ -63,6 +82,7 @@ const main = async () => {
                 txtItemH4 = txtItemH4.trim();
             }
     
+            // the reduced price of the food
             const itemPrice = await foodItem.$('.a-pricetag__price');
             let txtItemPrice;
             if(!itemPrice){
@@ -73,6 +93,7 @@ const main = async () => {
                 txtItemPrice = txtItemPrice.trim();
             }
 
+            // the price per unit of the food
             const itemPricePerUnit = await foodItem.$('.m-offer-tile__quantity');
             let txtItemPricePerUnit;
             if(!itemPricePerUnit){
@@ -83,6 +104,7 @@ const main = async () => {
                 txtItemPricePerUnit = txtItemPricePerUnit.trim();
             }
 
+            // the link to the image of the food
             const itemImage = await foodItem.$('img');
             let txtItemImage;
             if(!itemImage || saveNatworkData){
@@ -92,115 +114,89 @@ const main = async () => {
                 txtItemImage = outerHTML.match(/src="([^"]*)/)[1];
             }
 
-            // TODO add days valid as array
-            // TODO add discount factor
-            // TODO add normal price
+            // add discount factor
+            const discountFactor = await foodItem.$('.a-pricetag__discount');
+            let txtDiscountFactor;
+            if(!discountFactor){
+                txtDiscountFactor = null;
+            } else {
+                txtDiscountFactor = await discountFactor.getProperty('textContent');
+                txtDiscountFactor = await txtDiscountFactor.jsonValue();
+                txtDiscountFactor = txtDiscountFactor.trim();
+            }
+
+            // add normal price
+            const oldPrice = await foodItem.$('.a-pricetag__old-price');
+            let txtOldPrice;
+            if(!oldPrice){
+                txtOldPrice = null;
+            } else {
+                txtOldPrice = await oldPrice.getProperty('textContent');
+                txtOldPrice = await txtOldPrice.jsonValue();
+                txtOldPrice = txtOldPrice.trim();
+                if(txtOldPrice == "nur") txtOldPrice = null;
+            }
+
+            // add store name
+            const storeName = "Kaufland"
     
             if((!txtItemH5 && !txtItemH4) || !txtItemPrice) return null;
 
-            return {txtItemH5, txtItemH4, txtItemPrice, txtItemPricePerUnit, txtItemImage};
+            return {
+                brandName: txtItemH5,
+                foodInfo: txtItemH4, 
+                newPrice: txtItemPrice, 
+                oldPrice: txtOldPrice,
+                discountFactor: txtDiscountFactor, 
+                PricePerUnit: txtItemPricePerUnit,
+                image: txtItemImage,
+                category: txtCategory,
+                store: storeName,
+                dates: dates
+            };
     
         }));
-    
+
+        // add food to database
+        await Promise.all(food.map(async (foodItem) => {
+            if(foodItem) await addFoodToDatabase(
+                foodItem.brandName, 
+                foodItem.foodInfo, 
+                foodItem.newPrice, 
+                foodItem.oldPrice, 
+                foodItem.discountFactor, 
+                foodItem.PricePerUnit, 
+                foodItem.image, 
+                foodItem.category, 
+                foodItem.store, 
+                foodItem.dates
+            );
+        }));
+
+        // Save food to food.json
+        // fs.writeFile('food.json', JSON.stringify(food, null, 2), (err) => {
+        //     if (err) {
+        //         console.error('Error saving food to food.json:', err);
+        //     } else {
+        //         console.log('Food saved to food.json');
+        //     }
+        // });
+
         console.log(food);
 
     }
 
-
-    // await Promise.all(h4Elements.map(async element => {
-    //     const txt = await element.getProperty('textContent');
-    //     let rawTxt = await txt.jsonValue();
-    //     // remove all whitespaces
-    //     rawTxt = rawTxt.replace(/\s/g, '');
-    //     console.log({rawTxt});
-    // }));
-    // console.log({h4Elements});
-
-    // await takeScreenshot(page, 5);
-
-    // const isClickable = await page.$eval('#onetrust-reject-all-handler', element => {
-    //     const rect = element.getBoundingClientRect();
-    //     // return !!(rect.width || rect.height);
-    // });
-
-    // console.log('Is #onetrust-reject-all-handler clickable?', isClickable);
-    
-
-
-    // if (await page.$('#onetrust-reject-all-handler') !== null) {
-    //     await page.click('#onetrust-reject-all-handler');
-    // }
-    // await takeScreenshot(page, 3);
-
-    // // wait for 1 second
-    // new Promise(r => setTimeout(r, 1000));
-
-    // // set filiale
-    // await page.click('.a-flyout-link__anchor');
-    // await takeScreenshot(page, 4);
-    // await page.waitForSelector('.a-link--storeflyout-change');
-    // page.$eval(`.a-link--storeflyout-change`, element =>
-    //     element.click()
-    // );
-    // // await page.click('.a-link--storeflyout-change');
-    // // await page.waitForSelector('.m-store-flyout__address-town');
-
-    // await page.waitForSelector('#store-search');
-    // await page.type('#store-search', 'Kirchentellinsfurt');
-    // await page.keyboard.press('Enter');
-
-    // // await page.waitForNavigation();
-    // // await page.waitForNavigation({ waitUntil: "networkidle0" });
-    // await page.waitForSelector('.a-button--storelist-choose');
-    // await page.$eval('.a-button--storelist-choose a', element =>
-    //     element.click()
-    // );
-
-    // await page.goto(url);
-    // await page.click('.a-button--storelist-choose a');
-
-
-    // const location = await page.evaluate(() => {
-    //     const loc = document.getElementsByClassName("m-store-flyout__address-town");//.innerHTML;
-        
-    //     return Array.from(loc).map(loc => {
-    //         return loc.value;
-    //     });
-    // });
-
-    // spanElement = await page.$$('.m-store-flyout__address-town');
-    // spanElement = await page.$$('.m-accordion__title');
-    // spanElement = spanElement.pop();
-    // spanElement = await spanElement.getProperty('innerText');
-    // spanElement = await spanElement.jsonValue();
-
-    // console.log(spanElement);
-    
-    // await page.screenshot({ path: "screenshot.png" });
-
-    // await page.waitForSelector('.o-overview-list__list-item');
-    // console.log(await page.evaluate(() => document.getElementsByClassName("o-overview-list__list-item")[0]));
-    // const allFood = await page.evaluate(() => {
-    //     const foods = Array.from(document.getElementsByClassName("o-overview-list__list-item"));
-
-    //     return Array.from(foods).slice(0,3).map(async food => {
-    //         const nameSub = food.querySelector("h5")?.innerText;
-    //         const nameMain = food.querySelector("h4")?.innerText;
-            
-    //         // let spanPrice = await food.$$('.a-pricetag__price');
-    //         // spanPrice = spanElement.pop();
-    //         // spanPrice = await spanElement.getProperty('innerText');
-    //         // spanPrice = await spanElement.jsonValue();
-    //         // const price = food.querySelector(".a-pricetag__price").innerText;//[0]?.innerText;
-
-    //         return {nameSub, nameMain};
-
-    //     });
-    // });
-
-    // console.log(allFood);
-    // console.log(foods);
     await browser.close();
 }
 
+const initializeSqliteDB = () => {
+    const db = new sqlite3.Database('food.db');
+    db.serialize(function() {
+        db.run("CREATE TABLE IF NOT EXISTS food (brandName TEXT, foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+    });
+    db.close();
+}
+
+initializeSqliteDB();
+clearDatabaseByStore("Kaufland");
 main();
