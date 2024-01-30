@@ -32,6 +32,10 @@ app.get('/search', (req, res) => {
             console.error(err);
             res.status(500).send('Internal Server Error');
         } else {
+            console.log(rows);
+            // return the search results to the client
+            // res.send(rows);
+            
             res.render('search', { results: rows });
         }
     });

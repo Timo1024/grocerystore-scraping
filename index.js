@@ -142,9 +142,11 @@ const main = async () => {
     
             if((!txtItemH5 && !txtItemH4) || !txtItemPrice) return null;
 
+            const foodInfo = (txtItemH5 ? txtItemH5 : "") + ((txtItemH4 && txtItemH5) ? "; " : "") + (txtItemH4 ? txtItemH4 : "");
+
             return {
-                brandName: txtItemH5,
-                foodInfo: txtItemH4, 
+                // brandName: txtItemH5,
+                foodInfo: foodInfo, 
                 newPrice: txtItemPrice, 
                 oldPrice: txtOldPrice,
                 discountFactor: txtDiscountFactor, 
@@ -160,7 +162,7 @@ const main = async () => {
         // add food to database
         await Promise.all(food.map(async (foodItem) => {
             if(foodItem) await addFoodToDatabase(
-                foodItem.brandName, 
+                // foodItem.brandName, 
                 foodItem.foodInfo, 
                 foodItem.newPrice, 
                 foodItem.oldPrice, 
@@ -192,7 +194,8 @@ const main = async () => {
 const initializeSqliteDB = () => {
     const db = new sqlite3.Database('food.db');
     db.serialize(function() {
-        db.run("CREATE TABLE IF NOT EXISTS food (brandName TEXT, foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+        // db.run("CREATE TABLE IF NOT EXISTS food (brandName TEXT, foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
     });
     db.close();
 }
