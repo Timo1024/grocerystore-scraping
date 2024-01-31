@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
 .App {
   text-align: center;
 }
@@ -38,25 +40,125 @@
 }
 
 body {
-  margin: 5rem;
-  margin-top: 2rem;
+  margin-left: 5rem;
+  margin-right: 5rem;
+  /* margin-top: 2rem; */
   padding: 0;
   font-family: sans-serif;
-  background: #282c34;
+  background: #333333;
 }
+
+/* ------ */
+/* Layout */
+/* ------ */
 
 .main-div {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
-h1 {
+.sidebar {
+  margin-top: 2rem;
+  width: max(20rem, 20vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-right: 2rem;
+  /* background: #a65a5a; */
+  height: calc(100vh - 4rem);
+  position: fixed;
+}
+
+.searchWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  background-color: #414141;
+  width: 100%;
+  border-radius: 10px;
+  height: fit-content;
+}
+
+.savedCards {
+  background-color: #414141;
+  border-radius: 10px;
+  flex-shrink: 0;
+  /* height: 70%; */
+}
+
+.savedCardWrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2rem;
+  overflow-y: auto;
+  /* padding: 2rem; */
+  /* padding-top: 1rem; */
+  margin-top: 2rem;
+}
+
+.savedCardsItems {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  /* height: 100%; */
+  background-color: #414141;
+  border-radius: 10px;
+  /* height: 70%; */
+  overflow-y: auto;
+}
+
+.savedCardHeader {
+  align-self: flex-start;
+  margin-left: 2rem;
+  margin-top: 2rem;
+
+  color: #FFF;
+  font-family: Inter;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+/* delete when real saved card are there */
+.savedCardText {
+  margin: .5rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  align-items:flex-start;
+  justify-content: flex-start;
+  /* background-color: #414141; */
+  width: calc(100% - (max(20rem, 20vw + 2rem) + 5rem));
+  border-radius: 10px;
+  overflow-y: auto;
+  height: 100vh;
+  position: fixed;
+  margin-left: calc(max(20rem, 20vw) + 2rem)
+}
+
+
+/* h1 {
   margin: 2rem;
   padding: 0;
   font-size: 3rem;
   color: #d8d8d8;
-}
+} */
 
 /* li {
   margin-bottom: 1rem;
@@ -64,11 +166,14 @@ h1 {
 } */
 
 .card_wrapper {
-  display: grid;
-  grid-template-columns: repeat(4, auto);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* display: grid; */
+  /* grid-template-columns: repeat(4, auto); */
   /* flex-wrap: wrap; */
   /* justify-content: center; */
-  justify-content: space-between;
+  /* justify-content: space-between; */
   /* align-content: flex-start; */
 }
 
@@ -218,31 +323,91 @@ h1 {
 } */
 
 .search-component {
-  width: 80%;
+  width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  margin: 1rem;
+  margin: .5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
   justify-content: center;
 }
 
 .search-form {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  margin: 1rem;
+  /* margin: 1rem; */
   justify-content: center;
+  width: 100%;
+}
+
+.searchInput {
+  position: relative;
+	width: fit-content;
   width: 80%;
 }
 
 input[type="text"] {
-  flex: 5;
-  /* width: 40rem; */
   padding: 1rem;
-  font-size: 1.2rem;
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  padding-left: 2.5rem;
   border: 1px solid #d8d8d8;
-  border-radius: 5px;
-  /* margin-bottom: 1rem; */
+  border-radius: 30px;
+  width: calc(100% - 3.5rem);
+  background: #C4D6B0;
+
+  color: #1E1E1E;
+  font-family: Inter;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+
+  /* position: absolute; */
+}
+
+input[type="text"]:focus {
+  outline: none;
+}
+
+input[type="text"]:focus ~ .floatingLabel
+/* input[type="text"]:not(:focus):valid ~ .floatingLabel */
+{
+  display: none;
+}
+
+/* .inputText {
+  font-size: 14px;
+  width: 200px;
+  height: 35px;
+} */
+
+.searchIcon {
+  position: absolute;
+  padding-left: 1rem;
+  pointer-events: none;
+  left: 0px;
+  bottom: calc(0.75rem + 1px);
+}
+
+.floatingLabel {
+  position: absolute;
+  padding-left: 2.5rem;
+  pointer-events: none;
+  left: 0px;
+  bottom: 0.75rem;
+  transition: 0.2s ease all;
+
+  color: #1E1E1E;
+  font-family: Inter;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+
+  /* opacity: 0.5; */
 }
 
 .date-wrapper {

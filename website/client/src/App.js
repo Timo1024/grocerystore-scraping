@@ -28,6 +28,7 @@ import './App.css';
 import React, { useState } from 'react';
 import SearchComponent from './SearchComponent';
 import CardComponent from './cardComponent';
+import SavedCardComponent from './savedCardComponent';
 
 function App() {
     const [results, setResults] = useState([]);
@@ -57,15 +58,33 @@ function App() {
         .catch(error => console.error('Error:', error));
     };
 
+    const savedCards = JSON.parse(localStorage.getItem('savedCards')) || [];
+
     return (
+        
         <div className='main-div'>
-            <h1>Food Search</h1>
-            <SearchComponent onSearch={searchFood} />
-            <div className="card_wrapper">
-                {results.map((result, index) => (
-                    // <li key={index}>{result.foodInfo}</li>
-                    <CardComponent key={index} {...result} />
-                ))}
+            <div className='sidebar'>
+                <div className='searchWrapper'>
+                    <SearchComponent onSearch={searchFood} />
+                </div>
+                {/* <div className='savedCards'> */}
+                <div className='savedCardsItems'>
+                    <div className='savedCardHeader'>Gemerkte Artikel</div>
+                    <div className='savedCardWrapper'>
+                        {savedCards.map((savedCard, index) => (
+                            // <div className='savedCardText'>Saved Cards</div>
+                            <SavedCardComponent key={index} {...savedCard} />
+                        ))}
+                    </div>
+                </div>
+                {/* </div> */}
+            </div>
+            <div className='searchResults'>
+                <div className="card_wrapper">
+                    {results.map((result, index) => (
+                        <CardComponent key={index} {...result} />
+                    ))}
+                </div>
             </div>
         </div>
     );
