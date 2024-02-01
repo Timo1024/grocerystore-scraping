@@ -49,7 +49,7 @@ function App() {
                     <div className='savedCardWrapper'>
                         {savedCards.map((savedCard, index) => (
                             // <div className='savedCardText'>Saved Cards</div>
-                            <SavedCardComponent key={index} {...savedCard} onDelete={() => {
+                            <SavedCardComponent key={index} {...savedCard} onDelete={(event) => {
 
                                 // delete the entry in the local storage where the foodName is the same as the string in the cardSavedOverlayText div
                                 const savedCards = JSON.parse(localStorage.getItem('savedCards'));

@@ -186,7 +186,7 @@ const SavedCardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pric
                 for (let j = 0; j < word.length; j++) {
                     hyphenatedWord += word[j];
                     if (hyphenatedWord.length === width) {
-                        if(hyphenatedWord[-1] == "/" || hyphenatedWord[-1] == "-" || word[j+1] == "/" || word[j+1] == "-"){
+                        if(hyphenatedWord[-1] == "/" || hyphenatedWord[-1] == "-" || hyphenatedWord[-1] == ";" || word[j+1] == "/" || word[j+1] == "-" || word[j+1] == ";"){
                             formattedSentence += hyphenatedWord + '<br/>';
                         } else {
                             formattedSentence += hyphenatedWord + '-<br/>';
@@ -212,7 +212,7 @@ const SavedCardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pric
 
             <div className="cardSavedOverlay">
                 <div className="cardSavedOverlayText">{
-                    formatSentence(foodInfo, 14)
+                    formatSentence(foodInfo, 13)
                     // foodInfo
                 }</div>
                 <div className="cardSavedOverlayRemove" onClick={onDelete}>
