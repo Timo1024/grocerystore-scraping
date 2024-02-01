@@ -374,8 +374,8 @@ input[type="text"]:focus {
   outline: none;
 }
 
-input[type="text"]:focus ~ .floatingLabel
-/* input[type="text"]:not(:focus):valid ~ .floatingLabel */
+input[type="text"]:focus ~ .floatingLabel,
+input[type="text"]:valid ~ .floatingLabel
 {
   display: none;
 }
@@ -498,6 +498,11 @@ input[type="text"]:focus ~ .floatingLabel
   padding: 0;
 
   /* flex: 1; */
+}
+
+.cardSavedOverlayRemove {
+  padding: 1rem;
+  cursor: pointer;
 }
 
 

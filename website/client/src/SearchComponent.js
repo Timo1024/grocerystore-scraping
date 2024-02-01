@@ -39,7 +39,7 @@ const SearchComponent = ({ onSearch }) => {
         <div className='search-component'>
             <form className='search-form'>
                 <div className='searchInput'>
-                    <input className="inputText" type="text" value={query} onChange={(e) => {
+                    <input className="inputText" type="text" required value={query} onChange={(e) => {
                     // <input className="inputText" type="text" value={query} onChange={(e) => {
                         setQuery(e.target.value);
                         onSearch(e.target.value, fromDate, toDate);
