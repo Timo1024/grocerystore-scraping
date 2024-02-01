@@ -1,29 +1,4 @@
-// import logo from './logo.svg';
 import './App.css';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;
-
 
 import React, { useState } from 'react';
 import SearchComponent from './SearchComponent';
@@ -40,20 +15,17 @@ function App() {
           cache: 'no-store', // Bypass the cache
         })
         .then(response => {
-            // console.log('Full response:', response);
 
             // Access the raw response body (if needed)
             return response.text();
         })
         .then(rawBody => {
             // Handle the raw response body
-            // console.log('Raw response body:', rawBody);
 
             // Now attempt to parse the response body as JSON
             const data = JSON.parse(rawBody);
 
             // Handle the parsed JSON data
-            // console.log('Search results:', data);
             setResults(data);
             saveCard();
         })
@@ -61,17 +33,8 @@ function App() {
     };
 
     const savedCards = JSON.parse(localStorage.getItem('savedCards')) || [];
-
-    const handleEvent = () => {
-        console.log('event');
-    }
     
-    deleteCard();
-
-    // const onDelete = () => {
-    //     saveCard();
-    //     deleteCard();
-    // }
+    // deleteCard();
     
     return (
         
@@ -87,9 +50,17 @@ function App() {
                         {savedCards.map((savedCard, index) => (
                             // <div className='savedCardText'>Saved Cards</div>
                             <SavedCardComponent key={index} {...savedCard} onDelete={() => {
+
+                                // delete the entry in the local storage where the foodName is the same as the string in the cardSavedOverlayText div
+                                const savedCards = JSON.parse(localStorage.getItem('savedCards'));
+                                const foodName = savedCard.foodInfo;
+                                const newSavedCards = savedCards.filter((savedCard) => savedCard.foodInfo != foodName);
+                                localStorage.setItem('savedCards', JSON.stringify(newSavedCards));
+                                
+                                // console.log('onDelete was called 1');
                                 setDeleted(deleted.concat(savedCard.foodInfo));
-                                console.log('deleted');
-                            }} onClick={handleEvent}/>
+                                console.log('onDelete was called 2');
+                            }}/>
                         ))}
                     </div>
                 </div>
@@ -99,9 +70,10 @@ function App() {
                 <div className="card_wrapper">
                     {results.map((result, index) => (
                         <CardComponent key={index} {...result} onAdd={() => {
+                            // deleteCard();
                             setAdded(added.concat(result.foodInfo));
-                            console.log('added');
-                        }} onEvent={handleEvent}/>
+                            console.log('onAdd was called');
+                        }}/>
                     ))}
                 </div>
             </div>
@@ -119,7 +91,6 @@ function saveCard() {
 
     // get all card divs
     const cardDivs = document.querySelectorAll('.card');
-    // console.log(cardDivs);
     // add event listener for each card div
     cardDivs.forEach((cardDiv) => {
         cardDiv.addEventListener('click', () => {
@@ -136,7 +107,6 @@ function saveCard() {
                 store: cardDiv.querySelector('.card-store').textContent,
                 dates: cardDiv.querySelector('.date').textContent
             };
-            // console.log(cardInfo);
             // push card info to savedCards array in local storage
             if(!localStorage.getItem('savedCards')) {
               localStorage.setItem('savedCards', JSON.stringify([]));
@@ -150,29 +120,34 @@ function saveCard() {
 
             localStorage.setItem('savedCards', JSON.stringify(savedCards));
 
+            console.log("function saveCard() was called");
+
             setTimeout(() => {
               cardDiv.classList.remove('flash-green');
             }, 700);
         });
     });
+
+    // deleteCard();
 }
 
-function deleteCard() {
-  const savedCardDivs = document.querySelectorAll('.cardSaved');
-  console.log(savedCardDivs);
-  savedCardDivs.forEach((savedCardDiv) => {
-    const deleteButton = savedCardDiv.querySelector('.cardSavedOverlayRemove');
-    deleteButton.addEventListener('click', () => {
-        // delete the entry in the local storage where the foodName is the same as the string in the cardSavedOverlayText div
-        const savedCards = JSON.parse(localStorage.getItem('savedCards'));
-        const foodName = savedCardDiv.querySelector('.cardSavedOverlayText').textContent;
-        console.log({foodName});
-        console.log({savedCards});
-        const newSavedCards = savedCards.filter((savedCard) => savedCard.foodInfo != foodName);
-        console.log({newSavedCards});
-        localStorage.setItem('savedCards', JSON.stringify(newSavedCards));
-    });
-  });
-}
+// function deleteCard() {
+//   const savedCardDivs = document.querySelectorAll('.cardSaved');
+// //   console.log(savedCardDivs);
+//   savedCardDivs.forEach((savedCardDiv) => {
+//     const deleteButton = savedCardDiv.querySelector('.cardSavedOverlayRemove');
+//     deleteButton.addEventListener('click', () => {
+//         // delete the entry in the local storage where the foodName is the same as the string in the cardSavedOverlayText div
+//         const savedCards = JSON.parse(localStorage.getItem('savedCards'));
+//         const foodName = savedCardDiv.querySelector('.cardSavedOverlayText').textContent;
+//         const newSavedCards = savedCards.filter((savedCard) => savedCard.foodInfo != foodName);
+//         // console.log({foodName});
+//         // console.log({savedCards});
+//         // console.log({newSavedCards});
+//         console.log("function deleteCard() was called");
+//         localStorage.setItem('savedCards', JSON.stringify(newSavedCards));
+//     });
+//   });
+// }
 
 export default App;
