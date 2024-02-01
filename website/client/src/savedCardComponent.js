@@ -166,13 +166,55 @@ const SavedCardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pric
         }
     };
 
+    function formatSentence(sentence, width) {
+        const words = sentence.split(' ');
+        let formattedSentence = '';
+        let line = '';
+
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            const tempLine = line + ' ' + word;
+
+            if (tempLine.length <= width) {
+                line = tempLine.trim();
+            } else {
+                if (line.length > 0) {
+                    formattedSentence += line + '<br/>';
+                    line = '';
+                }
+                let hyphenatedWord = '';
+                for (let j = 0; j < word.length; j++) {
+                    hyphenatedWord += word[j];
+                    if (hyphenatedWord.length === width) {
+                        if(hyphenatedWord[-1] == "/" || hyphenatedWord[-1] == "-" || word[j+1] == "/" || word[j+1] == "-"){
+                            formattedSentence += hyphenatedWord + '<br/>';
+                        } else {
+                            formattedSentence += hyphenatedWord + '-<br/>';
+                        }
+                        hyphenatedWord = '';
+                    }
+                }
+                line = hyphenatedWord.trim();
+            }
+        }
+
+        if (line.length > 0) {
+            formattedSentence += line;
+        }
+
+        return <div dangerouslySetInnerHTML={{ __html: formattedSentence }} />;
+    }
+
     return (
         // <div className='savedCardText'>{foodInfo}</div>
 
         <div className="cardSaved">
 
             <div className="cardSavedOverlay">
-                <div className="cardSavedOverlayText">{foodInfo}</div>
+                <div className="cardSavedOverlayText">{
+                    formatSentence(foodInfo, 14)
+                    // foodInfo
+                }</div>
                 <div className="cardSavedOverlayRemove" onClick={onDelete}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
                         <path d="M0.313814 0.313814C0.732233 -0.104605 1.41062 -0.104605 1.82904 0.313814L7.5 5.98477L13.171 0.313814C13.5894 -0.104605 14.2678 -0.104605 14.6862 0.313814C15.1046 0.732233 15.1046 1.41062 14.6862 1.82904L9.01523 7.5L14.6862 13.171C15.1046 13.5894 15.1046 14.2678 14.6862 14.6862C14.2678 15.1046 13.5894 15.1046 13.171 14.6862L7.5 9.01523L1.82904 14.6862C1.41062 15.1046 0.732233 15.1046 0.313814 14.6862C-0.104605 14.2678 -0.104605 13.5894 0.313814 13.171L5.98477 7.5L0.313814 1.82904C-0.104605 1.41062 -0.104605 0.732233 0.313814 0.313814Z" fill="white"/>
@@ -188,41 +230,6 @@ const SavedCardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pric
                 <img className="cardSavedFoodImage" src={image} alt={foodInfo} />
             </div>
         </div>
-
-
-
-        // <div className="card">
-        //     <div className="card-header">
-        //         <div className="card-store">{store}</div>
-        //     </div>
-            
-        //     <div className="foodImageWrapper">
-        //         <img className="foodImage" src={image} alt={foodInfo} />
-        //     </div>
-        //     <div className="card-info">
-        //         <div className='foodName'>{foodInfo}</div>
-        //         <div className='category'>{category}</div>
-        //         {/* <div className='store'>Store: {store}</div> */}
-        //         {/* <p>Dates: {dates}</p> */}
-        //         <div className="price-info">
-        //             <div className="old-price">{oldPrice}</div>
-        //             <div className="current-price">
-        //                 <div className="discount-factor">{discountFactor}</div>
-        //                 <div className="new-price">{newPrice}</div>
-        //                 <div className="price-per-unit">{pricePerUnit}</div>
-        //             </div>
-        //         </div>
-        //     </div>
-        //     <div className='availability'>
-        //         {
-        //             // split dates by ; and use the first and last date to display from when to when the food is available
-        //             dates.split(';').length > 1 ? 
-        //                 <div className='date'>{new Date(dates.split(';')[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })} - {new Date(dates.split(';')[dates.split(';').length - 1]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
-        //                 :
-        //                 <div className='date'>{new Date(dates.split(';')[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
-        //         }
-        //     </div>
-        // </div>
     );
 };
 

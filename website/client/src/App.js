@@ -116,7 +116,7 @@ function saveCard() {
 
             // check if card is already saved
             const cardAlreadySaved = savedCards.some((savedCard) => savedCard.foodInfo == cardInfo.foodInfo);
-            if(!cardAlreadySaved) savedCards.push(cardInfo);
+            if(!cardAlreadySaved) savedCards.unshift(cardInfo);
 
             localStorage.setItem('savedCards', JSON.stringify(savedCards));
 
