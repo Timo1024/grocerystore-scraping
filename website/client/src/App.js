@@ -32,6 +32,8 @@ import SavedCardComponent from './savedCardComponent';
 
 function App() {
     const [results, setResults] = useState([]);
+    const [deleted, setDeleted] = useState([]);
+    const [added, setAdded] = useState([]);
 
     const searchFood = (query, fromDate, toDate) => {
         fetch(`http://localhost:5000/api/search?query=${encodeURIComponent(query)}&fromdate=${encodeURIComponent(fromDate)}&todate=${encodeURIComponent(toDate)}`, {
@@ -60,6 +62,17 @@ function App() {
 
     const savedCards = JSON.parse(localStorage.getItem('savedCards')) || [];
 
+    const handleEvent = () => {
+        console.log('event');
+    }
+    
+    deleteCard();
+
+    // const onDelete = () => {
+    //     saveCard();
+    //     deleteCard();
+    // }
+    
     return (
         
         <div className='main-div'>
@@ -73,7 +86,10 @@ function App() {
                     <div className='savedCardWrapper'>
                         {savedCards.map((savedCard, index) => (
                             // <div className='savedCardText'>Saved Cards</div>
-                            <SavedCardComponent key={index} {...savedCard} />
+                            <SavedCardComponent key={index} {...savedCard} onDelete={() => {
+                                setDeleted(deleted.concat(savedCard.foodInfo));
+                                console.log('deleted');
+                            }} onClick={handleEvent}/>
                         ))}
                     </div>
                 </div>
@@ -82,7 +98,10 @@ function App() {
             <div className='searchResults'>
                 <div className="card_wrapper">
                     {results.map((result, index) => (
-                        <CardComponent key={index} {...result} />
+                        <CardComponent key={index} {...result} onAdd={() => {
+                            setAdded(added.concat(result.foodInfo));
+                            console.log('added');
+                        }} onEvent={handleEvent}/>
                     ))}
                 </div>
             </div>
@@ -132,6 +151,24 @@ function saveCard() {
             }, 700);
         });
     });
+}
+
+function deleteCard() {
+  const savedCardDivs = document.querySelectorAll('.cardSaved');
+  console.log(savedCardDivs);
+  savedCardDivs.forEach((savedCardDiv) => {
+    const deleteButton = savedCardDiv.querySelector('.cardSavedOverlayRemove');
+    deleteButton.addEventListener('click', () => {
+        // delete the entry in the local storage where the foodName is the same as the string in the cardSavedOverlayText div
+        const savedCards = JSON.parse(localStorage.getItem('savedCards'));
+        const foodName = savedCardDiv.querySelector('.cardSavedOverlayText').textContent;
+        console.log({foodName});
+        console.log({savedCards});
+        const newSavedCards = savedCards.filter((savedCard) => savedCard.foodInfo != foodName);
+        console.log({newSavedCards});
+        localStorage.setItem('savedCards', JSON.stringify(newSavedCards));
+    });
+  });
 }
 
 export default App;

@@ -1,9 +1,9 @@
 import React from 'react';
 
-const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, rowid }) => {
+const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, rowid, onAdd}) => {
     // console.log(rowid);
     return (
-        <div className="card">
+        <div className="card" onClick={onAdd}>
             <div className="card-header">
                 <div className="card-store">{store}</div>
             </div>
