@@ -202,7 +202,7 @@ const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerU
             
             <div className="hl"></div>
             <div className="cardFooter">
-                <div className="card-store" dataStoreName={store}>{getStoreImage(store)}</div>
+                <div className="card-store" datastorename={store}>{getStoreImage(store)}</div>
                 <div className='category'>{category}</div>
             </div>
         </div>

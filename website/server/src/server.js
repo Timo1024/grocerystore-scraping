@@ -14,9 +14,28 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.get('/api/search', (req, res) => {
     console.log(req.query);
-    const query = req.query.query;
-    const sql = `SELECT *, rowid FROM food WHERE foodInfo LIKE ? OR category LIKE ?`;
-    db.all(sql, [`%${query}%`, `%${query}%`], (err, rows) => {
+    const query = req.query.query.trim();
+
+    const queryList = query.split(' ');
+
+    // query to see if every item in queryList is in the foodInfo column
+    let sql = `SELECT *, rowid FROM food WHERE (foodInfo LIKE ? OR category LIKE ?)`;
+    for (let i = 1; i < queryList.length; i++) {
+        sql += ` AND (foodInfo LIKE ? OR category LIKE ?)`;
+    }
+
+    console.log(sql);
+
+    // make array to fill with the queryList
+    let queryListFilled = [];
+    for (let i = 0; i < queryList.length; i++) {
+        queryListFilled.push(`%${queryList[i]}%`);
+        queryListFilled.push(`%${queryList[i]}%`);
+    }
+
+
+    // const sql = `SELECT *, rowid FROM food WHERE foodInfo LIKE ? OR category LIKE ?`;
+    db.all(sql, queryListFilled, (err, rows) => {
         if (err) {
             console.error(err.message);
             res.status(500).json({ error: 'Internal Server Error' });

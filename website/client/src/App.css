@@ -153,6 +153,8 @@ body {
   position: fixed;
   margin-left: calc(min(24rem, 20vw) + 2rem);
 
+  width: calc(100vw - calc(min(24rem, 20vw) + 2rem) - 4rem);
+
   padding-right: 2rem
 }
 
@@ -179,6 +181,10 @@ body {
   /* justify-content: center; */
   /* justify-content: space-between; */
   /* align-content: flex-start; */
+
+  width: 100%;
+
+  padding-top: 1rem;
 }
 
 .card {

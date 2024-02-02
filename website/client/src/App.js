@@ -104,7 +104,7 @@ function saveCard() {
                 pricePerUnit: cardDiv.querySelector('.price-per-unit').textContent,
                 image: cardDiv.querySelector('.foodImage').src,
                 category: cardDiv.querySelector('.category').textContent,
-                store: cardDiv.querySelector('.card-store').getAttribute('dataStoreName'),
+                store: cardDiv.querySelector('.card-store').getAttribute('datastorename'),
                 dates: cardDiv.querySelector('.date').textContent
             };
             // push card info to savedCards array in local storage
