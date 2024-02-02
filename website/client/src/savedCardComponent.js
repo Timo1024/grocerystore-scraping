@@ -223,6 +223,7 @@ const SavedCardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pric
             </div>
 
             <div className="cardSavedHeader">
+                {/* <div className="cardSavedStore">{getStoreImage(store)}</div> */}
                 <div className="cardSavedStore">{getStoreImage(store)}</div>
                 <div className="cardSavedPrice">{getPrice(newPrice)}</div>
             </div>

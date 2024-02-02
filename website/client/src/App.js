@@ -94,7 +94,7 @@ function saveCard() {
     // add event listener for each card div
     cardDivs.forEach((cardDiv) => {
         cardDiv.addEventListener('click', () => {
-          cardDiv.classList.add('flash-green');
+        //   cardDiv.classList.add('flash-green');
             // save card info in local storage
             const cardInfo = {
                 foodInfo: cardDiv.querySelector('.foodName').textContent,
@@ -104,7 +104,7 @@ function saveCard() {
                 pricePerUnit: cardDiv.querySelector('.price-per-unit').textContent,
                 image: cardDiv.querySelector('.foodImage').src,
                 category: cardDiv.querySelector('.category').textContent,
-                store: cardDiv.querySelector('.card-store').textContent,
+                store: cardDiv.querySelector('.card-store').getAttribute('dataStoreName'),
                 dates: cardDiv.querySelector('.date').textContent
             };
             // push card info to savedCards array in local storage
@@ -122,9 +122,9 @@ function saveCard() {
 
             console.log("function saveCard() was called");
 
-            setTimeout(() => {
-              cardDiv.classList.remove('flash-green');
-            }, 700);
+            // setTimeout(() => {
+            //   cardDiv.classList.remove('flash-green');
+            // }, 700);
         });
     });
 
