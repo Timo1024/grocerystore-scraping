@@ -11,25 +11,62 @@ function App() {
     const [added, setAdded] = useState([]);
 
     const searchFood = (query, fromDate, toDate) => {
-        fetch(`http://localhost:5000/api/search?query=${encodeURIComponent(query)}&fromdate=${encodeURIComponent(fromDate)}&todate=${encodeURIComponent(toDate)}`, {
-          cache: 'no-store', // Bypass the cache
-        })
-        .then(response => {
 
-            // Access the raw response body (if needed)
-            return response.text();
-        })
-        .then(rawBody => {
-            // Handle the raw response body
+        if(query.length != 1) {
+            // console.log({query});
 
-            // Now attempt to parse the response body as JSON
-            const data = JSON.parse(rawBody);
+            const queryList = query.toLowerCase().split(' ');
 
-            // Handle the parsed JSON data
-            setResults(data);
-            saveCard();
-        })
-        .catch(error => console.error('Error:', error));
+            // console.log({queryList});
+
+            // get the saved cards item from local storage
+            const savedCards = JSON.parse(localStorage.getItem('savedCards')) || [];
+
+            // get all saved cards which contain all items in the queryList
+            const savedCardsContainingAllItems = savedCards.filter((savedCard) => {
+                const foodInfo = savedCard.foodInfo.toLowerCase();
+                const category = savedCard.category.toLowerCase();
+
+                return queryList.every((queryItem) => (foodInfo.includes(queryItem) || category.includes(queryItem)));
+            });
+            
+            const savedCardsNotContainingAllItems = savedCards.filter((savedCard) => {
+                const foodInfo = savedCard.foodInfo.toLowerCase();
+                const category = savedCard.category.toLowerCase();
+
+                return !queryList.every((queryItem) => (foodInfo.includes(queryItem) || category.includes(queryItem)));
+            });
+
+            // console.log(savedCards.length, savedCardsContainingAllItems.length + savedCardsNotContainingAllItems.length);
+
+            // concat the two arrays
+            const savedCardsSorted = savedCardsContainingAllItems.concat(savedCardsNotContainingAllItems);
+
+            // save the sorted array in local storage
+            localStorage.setItem('savedCards', JSON.stringify(savedCardsSorted));
+
+            setAdded([]);
+
+            fetch(`http://localhost:5000/api/search?query=${encodeURIComponent(query)}&fromdate=${encodeURIComponent(fromDate)}&todate=${encodeURIComponent(toDate)}`, {
+            cache: 'no-store', // Bypass the cache
+            })
+            .then(response => {
+
+                // Access the raw response body (if needed)
+                return response.text();
+            })
+            .then(rawBody => {
+                // Handle the raw response body
+
+                // Now attempt to parse the response body as JSON
+                const data = JSON.parse(rawBody);
+
+                // Handle the parsed JSON data
+                setResults(data);
+                saveCard();
+            })
+            .catch(error => console.error('Error:', error));
+        }
     };
 
     const savedCards = JSON.parse(localStorage.getItem('savedCards')) || [];

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+let debounceTimer;
+
 const SearchComponent = ({ onSearch }) => {
     const [query, setQuery] = useState('');
     const [fromDate, setFromDate] = useState('');
@@ -41,8 +43,11 @@ const SearchComponent = ({ onSearch }) => {
                 <div className='searchInput'>
                     <input className="inputText" type="text" required value={query} onChange={(e) => {
                     // <input className="inputText" type="text" value={query} onChange={(e) => {
+                        clearTimeout(debounceTimer);
                         setQuery(e.target.value);
-                        onSearch(e.target.value, fromDate, toDate);
+                        debounceTimer = setTimeout(() => {
+                            onSearch(e.target.value, fromDate, toDate);
+                        }, 100);
                         // console.log(e.target.value);
                     }} />
                     <span className="floatingLabel">Suche</span>
