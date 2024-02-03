@@ -14,8 +14,12 @@ const main = async () => {
     const page = await browser.newPage();
     await page.goto(url);
 
+    takeScreenshot(page, 0);
+
     await acceptCookies(page);
     // await setLocation(page);
+
+    takeScreenshot(page, 0);
 
     // get all categories
     let categories = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[1]/div/div/nav/ul/li[1]/div/ul/li/a');
@@ -50,7 +54,7 @@ const main = async () => {
         // await redirect
         await page.waitForNavigation({ waitUntil: 'networkidle0' });
         await new Promise(r => setTimeout(r, 2000));
-        await takeScreenshot(page, i);
+        // await takeScreenshot(page, i);
 
         let foodItems = await page.$x('/html/body/div[3]/main/div[1]/div/div/div[4]/div[2]/div/div/div/div');
         // make foodItems to array
