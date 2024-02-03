@@ -74,15 +74,57 @@ const main = async () => {
     const [abNaechstenFreitag] = await page.$$('#ab-naechsten-freitag');
 
     const timeSections = [abMontag, abDonnerstag, abFreitag, abNaechstenMontag, abNaechstenDonnerstag, abNaechstenFreitag];
-    
-    // console.log({abMontag, abDonnerstag, abFreitag, abNaechstenMontag, abNaechstenDonnerstag, abNaechstenFreitag});
+
+    // console.log({timeSections});
+
+    // get amount of time sections which are not undefined
+    const timeSectionsLength = timeSections.filter((timeSection) => timeSection).length;
+
+    const [currentWeekWrapper] = await page.$x('/html/body/main/div/div[4]/section[1]/div[1]/div[1]/div/div/div/div/div[1]');
+
+    console.log({currentWeekWrapper});
+
+    let currentWeek = "";
+
+    if(currentWeekWrapper) {
+        currentWeek = await page.evaluate(el => el.getAttribute('data-startend'), currentWeekWrapper);
+        currentWeek = currentWeek.trim();
+    } else {
+        currentWeek = null;
+    }
+
+    // get the date range from monday to next saturday (the given first monday is the first date in the current week string "29.01. - 03.02.")
+    let [start, end] = currentWeek.split(" - ");
+    start = start.split(".");
+    let now = new Date();
+    start = new Date(now.getFullYear(), start[1]-1, start[0]);
+
+    // get all dated between start and end
+    let dates = [];
+    for(let i = 0; i < 13; i++) {
+        let date = new Date(start.getTime());
+        date.setDate(start.getDate() + i);
+        dates.push(date.toLocaleDateString());
+    }
+
+    const timeSectionsDates = [
+        [dates[0], dates[1], dates[2], dates[3], dates[4], dates[5]],
+        [dates[3], dates[4], dates[5]],
+        [dates[4], dates[5]],
+        [dates[7], dates[8], dates[9], dates[10], dates[11], dates[12]],
+        [dates[10], dates[11], dates[12]],
+        [dates[11], dates[12]]
+    ]
 
     // loop over time sections
     for(let i = 0; i < 1; i++) {
-    // for(let i = 0; i < timeSections.length; i++) {
+    // for(let i = 0; i < timeSectionsLength; i++) {
         
         // let timeSection = timeSections[i];
         let timeSection = timeSections[0];
+
+        // get the time points
+
         
         // get all top level section elements
         let sectionElements = await timeSection.$$('xpath/section');
@@ -122,7 +164,6 @@ const main = async () => {
                 let [oldPriceWrapper] = await liElement.$$('.bubble__small-value');
 
                 let oldPrice = "";
-
                 if(oldPriceWrapper) {
                     // get the .label and the .value elements if they exist and concatenate their text
                     let [label] = await oldPriceWrapper.$$('.label');
@@ -147,9 +188,75 @@ const main = async () => {
                     oldPrice = null;
                 }
 
-                console.log({oldPrice});
+                // get new price
+                let [newPriceWrapper] = await liElement.$$('.bubble__price');
 
-                // console.log({oldPriceWrapper});
+                let newPrice = "";
+                if(newPriceWrapper) {
+                    newPrice = await newPriceWrapper.getProperty('textContent');
+                    newPrice = (await newPrice.jsonValue()).trim();
+                } else {
+                    newPrice = null;
+                }
+
+                // get additional info
+                let [additionalInfoWrapper] = await liElement.$$('.badge--split.t-bg--blue-petrol.t-color--white');
+
+                let additionalInfo = "";
+                if(additionalInfoWrapper) {
+                    additionalInfo = "nur mit der Penny App";
+                } else {
+                    additionalInfo = null;
+                }
+
+                // get the discount factor
+                let [discountFactorWrapper] = await liElement.$$('xpath/article/div[3]/div[1]/span');
+
+                let discountFactor = "";
+                if(discountFactorWrapper) {
+                    discountFactor = await discountFactorWrapper.getProperty('textContent');
+                    discountFactor = (await discountFactor.jsonValue()).trim();
+                } else {
+                    discountFactor = null;
+                }
+
+                // get price per unit
+                let [pricePerUnitWrapper] = await liElement.$$('.offer-tile__unit-price');
+
+                let pricePerUnit = "";
+                if(pricePerUnitWrapper) {
+                    pricePerUnit = await pricePerUnitWrapper.getProperty('textContent');
+                    pricePerUnit = (await pricePerUnit.jsonValue()).trim();
+                } else {
+                    pricePerUnit = null;
+                }
+
+                // get food info
+                let [foodInfoWrapper] = await liElement.$$('.tile__link--cover');
+
+                let foodInfo = "";
+                if(foodInfoWrapper) {
+                    foodInfo = await foodInfoWrapper.getProperty('textContent');
+                    foodInfo = (await foodInfo.jsonValue()).trim();
+                } else {
+                    foodInfo = null;
+                }
+
+                // get image
+                let [imageWrapper] = await liElement.$$('.offer-tile__image');
+
+                let image = "";
+                if(imageWrapper) {
+                    image = await imageWrapper.getProperty('src');
+                    image = (await image.jsonValue()).trim();
+                } else {
+                    image = null;
+                }
+
+                // get the dates
+                let dates = timeSectionsDates[i];
+
+                console.log({oldPrice, newPrice, additionalInfo, category, discountFactor, pricePerUnit, foodInfo, image, dates});
 
             }
 
