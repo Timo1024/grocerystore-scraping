@@ -169,15 +169,30 @@ const getStoreImage = (store) => {
 
 const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, rowid, onAdd}) => {
     // console.log(rowid);
+
+    // loop over all dates
+    const datesArray = dates.split(';');
+    let dateObjects = [];
+    datesArray.forEach(element => {
+        let parts = element.split(".");
+        let formattedDate = `${parts[1]}/${parts[0]}/${parts[2]}`; // MM/DD/YYYY
+        let date = new Date(formattedDate);
+        dateObjects.push(date);
+    });
+
     return (
         <div className="card" onClick={onAdd}>
             <div className='availability'>
                 {
-                    // split dates by ; and use the first and last date to display from when to when the food is available
+                    // split dates by ; and use the first and last date to display from when to when the food is available (dates look like DD.MM.YYYY;DD.MM.YYYY;...)
                     dates.split(';').length > 1 ? 
-                        <div className='date'>{new Date(dates.split(';')[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })} - {new Date(dates.split(';')[dates.split(';').length - 1]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
+                        <div className='date'>{new Date(dateObjects[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })} - {new Date(dateObjects[dates.split(';').length - 1]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
                         :
-                        <div className='date'>{new Date(dates.split(';')[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
+                        <div className='date'>{new Date(dateObjects[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
+                    // dates.split(';').length > 1 ? 
+                    //     <div className='date'>{new Date(dates.split(';')[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })} - {new Date(dates.split(';')[dates.split(';').length - 1]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
+                    //     :
+                    //     <div className='date'>{new Date(dates.split(';')[0]).toLocaleDateString('de-DE', { month: 'long', day: '2-digit', weekday: 'short' })}</div>
                 }
             </div>
             <div className="hl"></div>
