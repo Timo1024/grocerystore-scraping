@@ -254,13 +254,19 @@ const main = async () => {
                 }
 
                 // get the dates
-                let dates = timeSectionsDates[i];
+                let dates = timeSectionsDates[i].join(";");
 
-                console.log({oldPrice, newPrice, additionalInfo, category, discountFactor, pricePerUnit, foodInfo, image, dates});
+                // store
+                let store = "Penny";
+
+                console.log({oldPrice, newPrice, additionalInfo, category, discountFactor, pricePerUnit, foodInfo, image, dates, store});
+
+                // if newPrice and foodInfo are not null, add the food to the database
+                if(newPrice && foodInfo) {
+                    await addFoodToDatabase(foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates);
+                }
 
             }
-
-
 
         }
 
@@ -310,5 +316,6 @@ const initializeSqliteDB = () => {
 }
 
 initializeSqliteDB();
+clearDatabaseByStore(null);
 clearDatabaseByStore("Penny");
 main();
