@@ -116,12 +116,21 @@ const main = async () => {
         [dates[11], dates[12]]
     ]
 
+    console.log({timeSectionsLength});
+
     // loop over time sections
-    for(let i = 0; i < 1; i++) {
-    // for(let i = 0; i < timeSectionsLength; i++) {
+    // for(let i = 0; i < 1; i++) {
+    for(let i = 0; i < timeSectionsLength; i++) {
         
-        // let timeSection = timeSections[i];
-        let timeSection = timeSections[0];
+        let timeSection = timeSections[i];
+        // let timeSection = timeSections[1];
+
+        // scroll to the timesection
+        // await page.evaluate((el) => {
+        //     el.scrollIntoView();
+        // }, timeSection);
+
+        // await new Promise(r => setTimeout(r, 500));
 
         // get the time points
 
@@ -130,10 +139,14 @@ const main = async () => {
         let sectionElements = await timeSection.$$('xpath/section');
 
         // loop over section elements
-        // for(let j = 0; j < sectionElements.length; j++) {
-        for(let j = 0; j < 1; j++) {
-            // let sectionElement = sectionElements[j];
-            let sectionElement = sectionElements[0];
+        for(let j = 0; j < sectionElements.length; j++) {
+        // for(let j = 0; j < 1; j++) {
+            let sectionElement = sectionElements[j];
+            // let sectionElement = sectionElements[0];
+
+            await page.evaluate((el) => {
+                el.scrollIntoView();
+            }, sectionElement);
 
             // get id of the section element
             let id = await page.evaluate(el => el.id, sectionElement);
@@ -149,8 +162,6 @@ const main = async () => {
                 category = (await h3.jsonValue()).trim();
             }
 
-            // console.log({category, id});
-
             // get the ul which contains all the food items
             let [ul] = await sectionElement.$$('ul');
 
@@ -159,9 +170,15 @@ const main = async () => {
 
             for(let k = 0; k < liElements.length; k++) {
                 let liElement = liElements[k];
+
+                // log outerHTML of li element
+                // let outerHTML = await page.evaluate(el => el.outerHTML, liElement);
+                // console.log({outerHTML});
                 
                 // get the oldPrice
                 let [oldPriceWrapper] = await liElement.$$('.bubble__small-value');
+
+                console.log({oldPriceWrapper});
 
                 let oldPrice = "";
                 if(oldPriceWrapper) {
