@@ -148,6 +148,8 @@ const main = async () => {
 
             const foodInfo = (txtItemH5 ? txtItemH5 : "") + ((txtItemH4 && txtItemH5) ? "; " : "") + (txtItemH4 ? txtItemH4 : "");
 
+            console.log({dates});
+
             return {
                 // brandName: txtItemH5,
                 foodInfo: foodInfo, 
@@ -188,7 +190,7 @@ const main = async () => {
         //     }
         // });
 
-        console.log(food);
+        // console.log(food);
 
     }
 

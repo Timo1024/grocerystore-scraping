@@ -30,33 +30,59 @@ const isElementClickable = async function(page, elementHandle) {
 }
 
 const extractDates = async function(dateRange) {
-    dateRangeSplit = dateRange.split(" ");
-    // console.log({dateRangeSplit});
-    const dates = [];
-    dateRangeSplit.forEach(element => {
-        const dateSplit = element.split(".");
-        // console.log({dateSplit});
-        if(dateSplit.length != 3) return;
-        const date = new Date(dateSplit[2], dateSplit[1] - 1, dateSplit[0]);
-        // const txtDate = date.toString();
-        // console.log({txtDate});
-        dates.push(date);
-    });
-    
-    if(dates.length != 2) return [new Date(undefined)];
+    const dateStartRaw = dateRange.split(" ")[2].split(".");
+    const dateEndRaw = dateRange.split(" ")[4].split(".");
+    // const dates = [];
 
-    // get dates between first and last date
-    const datesBetween = [];
-    const lastDate = dates[1];
-    let firstDate = dates[0];
-    while(firstDate <= lastDate) {
-        datesBetween.push(firstDate);
-        firstDate = new Date(firstDate.getTime() + 24 * 60 * 60 * 1000);
-        // firstDate.setDate(firstDate.getDate() + 1);
+    const firstDate = new Date(dateStartRaw[2], dateStartRaw[1] - 1, dateStartRaw[0]);
+    const lastDate = new Date(dateEndRaw[2], dateEndRaw[1] - 1, dateEndRaw[0]);
+
+    let currentDate = new Date(firstDate.getTime());
+    let dates = [];
+    let datesReadable = [];
+
+    while (currentDate <= lastDate) {
+        dates.push(new Date(currentDate));
+        datesReadable.push(currentDate.toLocaleDateString());
+        currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    // let dates = [];
+    // for(let i = 0; i < 13; i++) {
+    //     let date = new Date(start.getTime());
+    //     date.setDate(start.getDate() + i);
+    //     dates.push(date.toLocaleDateString());
+    // }
+    
+    // dateRangeSplit.forEach(element => {
+    //     const dateSplit = element.split(".");
+    //     if(dateSplit.length != 3) return;
+    //     const date = new Date(dateSplit[2], dateSplit[1] - 1, dateSplit[0]);
+    //     dates.push(date);
+    // });
+    
+    // if(dates.length != 2) return [new Date(undefined)];
+
+    // get dates between first and last date
+    // const datesBetween = [];
+    // const lastDate = dates[1];
+    // let firstDate = dates[0];
+    // while(firstDate <= lastDate) {
+    //     datesBetween.push(firstDate);
+    //     firstDate = new Date(firstDate.getTime() + 24 * 60 * 60 * 1000);
+    //     // firstDate.setDate(firstDate.getDate() + 1);
+    // }
+
+    // from the datesBetween array, get the dates in the format "DD-MM-YYYY"
+    // const datesShort = datesBetween.map((date) => {
+    //     const day = date.getDate();
+    //     const month = date.getMonth() + 1;
+    //     const year = date.getFullYear();
+    //     return day + "-" + month + "-" + year;
+    // });
+
     // console.log({dates});
-    const datesJoined = datesBetween.join(";");
+    const datesJoined = datesReadable.join(";");
 
     return datesJoined;
 }
