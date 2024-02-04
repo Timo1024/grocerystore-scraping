@@ -93,7 +93,16 @@ function App() {
                                 // delete the entry in the local storage where the foodName is the same as the string in the cardSavedOverlayText div
                                 const savedCards = JSON.parse(localStorage.getItem('savedCards'));
                                 const foodName = savedCard.foodInfo;
-                                const newSavedCards = savedCards.filter((savedCard) => savedCard.foodInfo != foodName);
+                                const store = savedCard.store;
+                                const dates = savedCard.dates;
+                                const newPrice = savedCard.newPrice;
+                                // filter where foodInfo, store, dates and newPrice are not the same
+                                const newSavedCards = savedCards.filter((savedCard) => {
+                                    return !((savedCard.foodInfo == foodName) &&
+                                    (savedCard.store == store) &&
+                                    (savedCard.dates == dates) &&
+                                    (savedCard.newPrice == newPrice));
+                                });
                                 localStorage.setItem('savedCards', JSON.stringify(newSavedCards));
                                 
                                 // console.log('onDelete was called 1');
@@ -153,8 +162,8 @@ function saveCard() {
 
             const savedCards = JSON.parse(localStorage.getItem('savedCards'));
 
-            // check if card is already saved
-            const cardAlreadySaved = savedCards.some((savedCard) => savedCard.foodInfo == cardInfo.foodInfo);
+            // check if card is already saved if foodInfo, store, dates and newPrice are the same
+            const cardAlreadySaved = savedCards.some((savedCard) => (savedCard.foodInfo == cardInfo.foodInfo && savedCard.store == cardInfo.store && savedCard.dates == cardInfo.dates && savedCard.newPrice == cardInfo.newPrice));
             if(!cardAlreadySaved) savedCards.unshift(cardInfo);
 
             localStorage.setItem('savedCards', JSON.stringify(savedCards));
