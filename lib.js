@@ -87,10 +87,10 @@ const extractDates = async function(dateRange) {
     return datesJoined;
 }
 
-const addFoodToDatabase = async function(foodInfo, newPrice, oldPrice, discountFactor, PricePerUnit, image, category, store, dates) {
+const addFoodToDatabase = async function(foodInfo, newPrice, oldPrice, discountFactor, PricePerUnit, image, category, store, dates, additionalInfo) {
     const db = new sqlite3.Database('food.db');
-    const sql = `INSERT INTO food (foodInfo, newPrice, oldPrice, discountFactor, PricePerUnit, image, category, store, dates) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    const params = [foodInfo, newPrice, oldPrice, discountFactor, PricePerUnit, image, category, store, dates];
+    const sql = `INSERT INTO food (foodInfo, newPrice, oldPrice, discountFactor, PricePerUnit, image, category, store, dates, additionalInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const params = [foodInfo, newPrice, oldPrice, discountFactor, PricePerUnit, image, category, store, dates, additionalInfo];
 
     db.run(sql, params, function(err) {
         if (err) {

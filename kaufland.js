@@ -148,7 +148,7 @@ const main = async () => {
 
             const foodInfo = (txtItemH5 ? txtItemH5 : "") + ((txtItemH4 && txtItemH5) ? "; " : "") + (txtItemH4 ? txtItemH4 : "");
 
-            console.log({dates});
+            const additionalInfo = null;
 
             return {
                 // brandName: txtItemH5,
@@ -160,7 +160,8 @@ const main = async () => {
                 image: txtItemImage,
                 category: txtCategory,
                 store: storeName,
-                dates: dates
+                dates: dates,
+                additionalInfo: additionalInfo
             };
     
         }));
@@ -177,7 +178,8 @@ const main = async () => {
                 foodItem.image, 
                 foodItem.category, 
                 foodItem.store, 
-                foodItem.dates
+                foodItem.dates,
+                foodItem.additionalInfo
             );
         }));
 
@@ -201,7 +203,7 @@ const initializeSqliteDB = () => {
     const db = new sqlite3.Database('food.db');
     db.serialize(function() {
         // db.run("CREATE TABLE IF NOT EXISTS food (brandName TEXT, foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
-        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT, additionalInfo TEXT)");
     });
     db.close();
 }

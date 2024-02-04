@@ -263,7 +263,7 @@ const main = async () => {
 
                 // if newPrice and foodInfo are not null, add the food to the database
                 if(newPrice && foodInfo) {
-                    await addFoodToDatabase(foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates);
+                    await addFoodToDatabase(foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, additionalInfo);
                 }
 
             }
@@ -310,7 +310,7 @@ const main = async () => {
 const initializeSqliteDB = () => {
     const db = new sqlite3.Database('food.db');
     db.serialize(function() {
-        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT, additionalInfo TEXT)");
     });
     db.close();
 }
