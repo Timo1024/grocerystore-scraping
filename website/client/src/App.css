@@ -525,7 +525,7 @@ input[type="text"]:valid ~ .floatingLabel
   margin-left: 1rem;
 
   color: #D6D6D6;
-  text-align: center;
+  text-align: right;
   font-family: Inter;
   font-size: 1rem;
   font-style: normal;
@@ -560,7 +560,7 @@ input[type="text"]:valid ~ .floatingLabel
 .cardSavedOverlayText {
   color: white;
   font-family: Inter;
-  font-size: 1rem;
+  font-size: .8rem;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
@@ -576,6 +576,41 @@ input[type="text"]:valid ~ .floatingLabel
   cursor: pointer;
 }
 
+.price-per-unit {
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  text-align: right;
+}
+
+.saved-price-per-unit {
+  color: #D6D6D6;
+  text-align: right;
+  font-family: Inter;
+  font-size: .7rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.additionalInfoWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: .4rem;
+  /* border: 3px solid #333333; */
+  background-color: #414141;
+}
+
+.additionalInfoBorder {
+  max-width: 250px;
+  padding: 1rem;
+  position: relative;
+  background: linear-gradient(20deg, rgb(63, 83, 57), #C4D6B0, rgb(63, 83, 57));
+  padding: 3px;
+}
 
 
 

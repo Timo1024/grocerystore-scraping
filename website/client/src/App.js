@@ -63,6 +63,8 @@ function App() {
 
                 // Handle the parsed JSON data
                 setResults(data);
+                console.log("results0:");
+                console.log(results[0]);
                 saveCard();
             })
             .catch(error => console.error('Error:', error));

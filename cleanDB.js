@@ -3,8 +3,8 @@ const sqlite3 = require('sqlite3').verbose();
 const initializeSqliteDB = () => {
     const db = new sqlite3.Database('food.db');
     db.serialize(function() {
-        // db.run("CREATE TABLE IF NOT EXISTS food (brandName TEXT, foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
-        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+        // db.run("CREATE TABLE IF NOT EXISTS food (brandName TEXT, foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, pricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
+        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, pricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT)");
     });
     db.close();
 }

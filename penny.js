@@ -327,7 +327,7 @@ const main = async () => {
 const initializeSqliteDB = () => {
     const db = new sqlite3.Database('food.db');
     db.serialize(function() {
-        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, PricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT, additionalInfo TEXT)");
+        db.run("CREATE TABLE IF NOT EXISTS food (foodInfo TEXT, newPrice TEXT, oldPrice TEXT, discountFactor TEXT, pricePerUnit TEXT, image TEXT, category TEXT, store TEXT, dates TEXT, additionalInfo TEXT)");
     });
     db.close();
 }

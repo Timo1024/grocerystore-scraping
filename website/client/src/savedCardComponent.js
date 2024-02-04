@@ -225,7 +225,10 @@ const SavedCardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pric
             <div className="cardSavedHeader">
                 {/* <div className="cardSavedStore">{getStoreImage(store)}</div> */}
                 <div className="cardSavedStore">{getStoreImage(store)}</div>
-                <div className="cardSavedPrice">{getPrice(newPrice)}</div>
+                <div className="cardSavedPriceWrapper">
+                    <div className="cardSavedPrice">{getPrice(newPrice)}</div>
+                    <div className="saved-price-per-unit">{pricePerUnit}</div>
+                </div>
             </div>
             <div className="cardSavedFoodImageWrapper">
                 <img className="cardSavedFoodImage" src={image} alt={foodInfo} />

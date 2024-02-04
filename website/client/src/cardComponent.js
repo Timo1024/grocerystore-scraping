@@ -167,8 +167,10 @@ const getStoreImage = (store) => {
     }
 };
 
-const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, rowid, onAdd}) => {
+const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, additionalInfo, rowid, onAdd}) => {
     // console.log(rowid);
+
+    console.log({ foodInfo, newPrice, oldPrice, discountFactor, pricePerUnit, image, category, store, dates, additionalInfo, rowid, onAdd});
 
     // loop over all dates
     const datesArray = dates.split(';');
@@ -209,6 +211,14 @@ const CardComponent = ({ foodInfo, newPrice, oldPrice, discountFactor, pricePerU
                             <div className="price-per-unit">{pricePerUnit}</div>
                         </div>
                     </div>
+                    {additionalInfo ?
+                        <div className="additionalInfoBorder">
+                            <div className="additionalInfoWrapper">
+                                <div className="additionalInfo">{additionalInfo}</div> 
+                            </div>
+                        </div>
+                        : 
+                        null}
                 </div>
                 <div className="foodImageWrapper">
                     <img className="foodImage" src={image} alt={foodInfo} />
